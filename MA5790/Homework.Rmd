@@ -1,0 +1,300 @@
+---
+title: "HW1"
+author: "Prutha"
+date: "September 24, 2019"
+output: word_document
+---
+Homework 1:
+Question 3.1
+(a)Using visualizations, explore the predictor variables to understand their
+distributions as well as the relationships between predictors.
+Answer: Below are the histograms displaying the frequency of each predictor, which helps us understand their distribution better.
+Also, we have created the plots of every predictor with respect to every other predictor in order to understand the relation in between them.
+We observe all the predictors are moderately skewed expect for a few predictors such as K, Ba and Fe.
+
+(b) Do there appear to be any outliers in the data? Are any predictors skewed?
+Answer: Yes, all the predictors have some outliers in their data, expect for the predictor 'Mg'. We observe all the predictors are moderately skewed expect for a few predictors such as K, Ba and Fe.
+
+(c) Are there any relevant transformations of one or more predictors that
+might improve the classification model?
+Answer: Initially we apply log transformation to reduce the skewness in the data. However, it does not seem to be efficiently removing the skewness, hence we apply another transformation method called as 'Box Cox Transformation'. After applying this transformation method, we observe that the data is somewhat moderately skewed.
+
+
+```{r}
+library(AppliedPredictiveModeling)
+library(mlbench)
+library(e1071)
+data(Glass)
+str(Glass)
+#3.1 (a)
+# explore the predictor variables to understand their distributions as well as the relationships between predictors.
+par(mfrow = c(3,3))
+hist(Glass$RI, main = "Histogram of RI", xlab = "RI")
+hist(Glass$Na, main = "Histogram of Na", xlab = "Na")
+hist(Glass$Mg, main = "Histogram of Mg", xlab = "Mg")
+hist(Glass$Al, main = "Histogram of Al", xlab = "Al")
+hist(Glass$Si, main = "Histogram of Si", xlab = "Si")
+hist(Glass$K, main = "Histogram of K", xlab = "K")
+hist(Glass$Ca, main = "Histogram of Ca", xlab = "Ca")
+hist(Glass$Ba, main = "Histogram of Ba", xlab = "Ba")
+hist(Glass$Fe, main = "Histogram of Fe", xlab = "Fe")
+
+par(mfrow = c(3,3))
+plot(Glass$RI~.,data = Glass)
+plot(Glass$Na~.,data = Glass)
+plot(Glass$Mg~.,data = Glass)
+plot(Glass$Al~.,data = Glass)
+plot(Glass$Si~.,data = Glass)
+plot(Glass$K~.,data = Glass)
+plot(Glass$Ca~.,data = Glass)
+plot(Glass$Ba~.,data = Glass)
+plot(Glass$Fe~.,data = Glass)
+
+#to find the outliers and to check the skewness
+par(mfrow = c(3,3))
+boxplot(Glass$RI, main = "RI")
+boxplot(Glass$Na, main = "Na")
+boxplot(Glass$Mg, main = "Mg")
+boxplot(Glass$Al, main = "Al")
+boxplot(Glass$Si, main = "Si")
+boxplot(Glass$K, main = "K")
+boxplot(Glass$Ca, main = "Ca")
+boxplot(Glass$Ba, main = "Ba")
+boxplot(Glass$Fe, main = "Fe")
+
+# to check skewness
+
+skewness(Glass$RI)
+skewness(Glass$Na)
+skewness(Glass$Mg)
+skewness(Glass$Al)
+skewness(Glass$Si)
+skewness(Glass$K)
+skewness(Glass$Ca)
+skewness(Glass$Ba)
+skewness(Glass$Fe)
+
+
+# (c) Transformation
+
+#log transformation
+logTrans_RI <- log(Glass$RI)
+logTrans_Na <- log(Glass$Na)
+logTrans_Mg <- log(Glass$Mg)
+logTrans_Al <- log(Glass$Al)
+logTrans_Si <- log(Glass$Si)
+logTrans_K <- log(Glass$K)
+logTrans_Ba <- log(Glass$Ba)
+logTrans_Ca <- log(Glass$Ca)
+logTrans_Fe <- log(Glass$Fe)
+
+
+skewness(logTrans_RI)
+skewness(logTrans_Na)
+skewness(logTrans_Mg)
+skewness(logTrans_Al)
+skewness(logTrans_Si)
+skewness(logTrans_K)
+skewness(logTrans_Ba)
+skewness(logTrans_Fe)
+
+# since the skewness is not efficient we use Box Cox Transform
+
+#Box Cox tranformtion
+library(caret)
+xx1 <- preProcess(Glass, method = c("BoxCox"))
+xx1
+
+# Apply the transformations:
+
+transformed <- predict(xx1, Glass)
+transformed
+
+
+
+skewness(transformed$RI)
+skewness(transformed$Na)
+skewness(transformed$Mg)
+skewness(transformed$Al)
+skewness(transformed$Si)
+skewness(transformed$K)
+skewness(transformed$Ca)
+skewness(transformed$Ba)
+skewness(transformed$Fe)
+```
+
+Question 3.2
+(a)Investigate the frequency distributions for the categorical predictors. Are
+any of the distributions degenerate in the ways discussed earlier in this
+chapter?
+Answer: Below are the plots displaying the frequency of each predictor, which helps us understand their distribution better.
+Predictors whose variance is zero are the ones of degenrated distribution which Leaf Mild, Mycelium and Sclerotia
+
+(b) Roughly 18 % of the data are missing. Are there particular predictors that
+are more likely to be missing? Is the pattern of missing data related to
+the classes?
+Answer: We divide the data into subsets for convience and then check the NA values present in data. We observe that most of the missing data seems to come from columns such as "Seed.tmt, Sever, Germ, Leaf Halo, Hail, Leaf Mild, Fruiting Bodies, Leaf Marg, Leaf size, Leaf shred, Leaf Maf, Fruiting Bodies, Lodging, Fruit pods, fruits spots, mold growth, Shriveling and Seed Discolor." All of these predictors have over more than 80 missing values.
+Also the missing data is related to the classes, as after subseting we observe that the missing values are dependent on the class. After adding the na values, only specific classes have those values while the rest classes do not appear to have the missing values.
+
+(c) Develop a strategy for handling missing data, either by eliminating
+predictors or imputation.
+Answer: To handle the missing data, we forst try elimitating the na values however it does not work quite effiecently.
+Hence, we try the second method of Imputation, however missing values are not removed completely which brings us to a conclusion that both of these methods are not working well to deal/remove the missing values
+
+
+
+```{r}
+# Q3.2
+#frequency distributions for the categorical predictors
+
+data(Soybean)
+par(mfrow = c(2,3))
+
+plot(Soybean$Class, main = "Class")
+plot(Soybean$date, main = "date")
+plot(Soybean$plant.stand, main = "plant.stand")
+plot(Soybean$precip, main = "precip")
+plot(Soybean$temp, main = "temp")
+plot(Soybean$hail, main = "hail")
+par(mfrow = c(2,3))
+
+plot(Soybean$crop.hist, main = "crop.hist")
+plot(Soybean$area.dam, main = "area.dam")
+plot(Soybean$sever, main = "sever")
+plot(Soybean$seed.tmt, main = "seed.tmt")
+plot(Soybean$germ, main = "germ")
+plot(Soybean$plant.growth, main = "plant.growth")
+par(mfrow = c(2,3))
+
+plot(Soybean$leaves, main = "leaves")
+plot(Soybean$leaf.halo, main = "leaf.halo")
+plot(Soybean$leaf.marg, main = "leaf.marg")
+plot(Soybean$leaf.size, main = "leaf.size")
+plot(Soybean$leaf.shread, main = "leaf.shread")
+plot(Soybean$leaf.malf, main = "leaf.malf")
+par(mfrow = c(2,3))
+
+plot(Soybean$leaf.mild, main = "leaf.mild")
+plot(Soybean$stem, main = "stem")
+plot(Soybean$lodging, main = "lodging")
+plot(Soybean$stem.cankers, main = "stem.cankers")
+plot(Soybean$canker.lesion, main = "canker.lesion")
+plot(Soybean$fruiting.bodies, main = "fruiting.bodies")
+par(mfrow = c(2,3))
+
+plot(Soybean$ext.decay, main = "ext.decay")
+plot(Soybean$mycelium, main = "mycelium")
+plot(Soybean$int.discolor, main = "int.discolor")
+plot(Soybean$sclerotia, main = "sclerotia")
+plot(Soybean$fruit.pods, main = "fruit.pods")
+plot(Soybean$fruit.spots, main = "fruit.spots")
+par(mfrow = c(2,3))
+
+plot(Soybean$seed, main = "seed")
+plot(Soybean$mold.growth, main = "mold.growth")
+plot(Soybean$seed.discolor, main = "seed.discolor")
+plot(Soybean$seed.size, main = "seed.size")
+plot(Soybean$shriveling, main = "shriveling")
+plot(Soybean$roots, main = "roots")
+
+
+# to calculate variance
+
+nearZeroVar(Soybean)
+
+
+
+#3.2 (b)
+# Diving the data into subset
+levels(Soybean$Class)
+q1 <- subset(Soybean, Class == "2-4-d-injury")
+q2 <- subset(Soybean, Class == "alternarialeaf-spot") 
+q3 <- subset(Soybean, Class == "anthracnose") 
+q4 <- subset(Soybean, Class == "bacterial-blight") 
+q5 <- subset(Soybean, Class == "bacterial-pustule") 
+q6 <- subset(Soybean, Class == "brown-spot") 
+q7 <- subset(Soybean, Class == "brown-stem-rot") 
+q8 <- subset(Soybean, Class == "charcoal-rot") 
+q9 <- subset(Soybean, Class == "cyst-nematode" ) 
+q10 <- subset(Soybean, Class == "diaporthe-pod-&-stem-blight") 
+q11 <- subset(Soybean, Class == "diaporthe-stem-canker") 
+q12 <- subset(Soybean, Class == "downy-mildew") 
+q13 <- subset(Soybean, Class == "frog-eye-leaf-spot") 
+q14 <- subset(Soybean, Class == "herbicide-injury") 
+q15 <- subset(Soybean, Class == "phyllosticta-leaf-spot") 
+q16 <- subset(Soybean, Class == "phytophthora-rot") 
+q17 <- subset(Soybean, Class == "powdery-mildew" ) 
+q18 <- subset(Soybean, Class == "purple-seed-stain") 
+q19 <- subset(Soybean, Class == "rhizoctonia-root-rot") 
+
+colSums(is.na(q1))
+colSums(is.na(q2))
+colSums(is.na(q3))
+colSums(is.na(q4))
+colSums(is.na(q5))
+colSums(is.na(q6))
+colSums(is.na(q7))
+colSums(is.na(q8))
+colSums(is.na(q9))
+colSums(is.na(q10))
+colSums(is.na(q11))
+colSums(is.na(q12))
+colSums(is.na(q13))
+colSums(is.na(q14))
+colSums(is.na(q15))
+colSums(is.na(q16))
+colSums(is.na(q17))
+colSums(is.na(q18))
+colSums(is.na(q19))
+
+#3.2 (c) Imputation
+#Eliminating predictors:
+completerecords <- na.omit(Soybean)
+completerecords
+sum(is.na(completerecords))
+# Apply Imputation
+
+library(caret)
+Im <- preProcess(Soybean,method=c("BoxCox","center","scale","knnImpute")) ## need {caret} package
+## Apply inputation
+segDataIm <- predict(Im,Soybean)
+segDataIm
+colSums(is.na(segDataIm))
+```
+
+
+
+Question 3.3
+(a)Load the data
+
+(c)Generally speaking, are there strong relationships between the predictor data? If so, how could correlations in the predictor set be reduced?
+Does this have a dramatic effect on the number of predictors available for
+modeling?
+Answer: There seems to be strong correaltion between certain predicotrs in the data as a lot of correaltion values appear between '+0.75' to '+1' and from '-0.75' to '-1' which depicts strong correlation.
+TO reduce the correlation between predicotrs there can be multiple ways such as elimination of certain correlated data, Principal component Analysis, etc. In the below code we give a cut off value of 0.75, after which the correlated predictors are removed from the data.
+
+
+
+```{r}
+
+# 3.3 (a)
+library(caret)
+library(corrplot)
+data(BloodBrain)
+
+#3.3(c)
+correlations <- cor(bbbDescr)
+
+corrplot(correlations, order = "hclust")
+
+#Correlation reduction
+highCorr <- findCorrelation(correlations, cutoff = .75)
+length(highCorr)
+highCorr
+filteredBBData <- bbbDescr[, -highCorr]
+
+NewBlood <- bbbDescr[ -c(27,32,37,40,45,56,57,58,62,68,72,73,74,75,83,84,85,87,88, 90 ,93,94,95,96,97,98,99,100, 101, 102, 103, 108, 110, 111, 113, 114, 115, 116, 117, 119, 123, 124, 125, 126, 127, 128, 4,1,22, 23, 24, 33, 6, 49, 48, 21, 65, 67, 69, 80, 78, 89, 91, 109, 120, 112)]
+NewBlood
+
+```
+
